@@ -1,0 +1,18 @@
+{
+  "appInfo": {
+    "name": "泳池机器人",
+    "version": "",
+    "description": "",
+    "logo": "/downloads/1765950123954_Snipaste_2025-12-17_13-38-48.png"
+  },
+  "downloadLinks": {
+    "googlePlay": "https://play.google.com/...",
+    "appStore": "https://apps.apple.com/...",
+    "androidApk": ""
+  },
+  "adminConfig": {
+    "username": "admin",
+    "password": "admin123"
+  },
+  "apkVersions": []
+}
