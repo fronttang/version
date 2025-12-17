@@ -324,6 +324,27 @@ export default {
     this.loadCurrentMenuData()
   },
   methods: {
+    // 通用的API请求方法，自动处理401错误
+    async apiRequest(url, options = {}) {
+      const defaultOptions = {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+          ...options.headers
+        }
+      }
+      
+      const response = await fetch(url, { ...options, ...defaultOptions })
+      
+      if (response.status === 401) {
+        localStorage.removeItem('adminToken')
+        this.$router.push('/admin')
+        ElMessage.error('登录已过期，请重新登录')
+        throw new Error('Unauthorized')
+      }
+      
+      return response
+    },
+    
     async loadCurrentMenuData() {
       switch (this.activeMenu) {
         case 'app':
@@ -343,58 +364,50 @@ export default {
     
     async loadAppInfo() {
       try {
-        const response = await fetch('/api/admin/app-info', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-          }
-        })
+        const response = await this.apiRequest('/api/admin/app-info')
         const data = await response.json()
         this.appInfo = data.appInfo
       } catch (error) {
-        ElMessage.error('加载应用信息失败')
+        if (error.message !== 'Unauthorized') {
+          ElMessage.error('加载应用信息失败')
+        }
       }
     },
     
     async loadDownloadLinks() {
       try {
-        const response = await fetch('/api/admin/download-links', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-          }
-        })
+        const response = await this.apiRequest('/api/admin/download-links')
         const data = await response.json()
         this.downloadLinks = data.downloadLinks
       } catch (error) {
-        ElMessage.error('加载下载链接失败')
+        if (error.message !== 'Unauthorized') {
+          ElMessage.error('加载下载链接失败')
+        }
       }
     },
     
     async loadApkVersions() {
       try {
-        const response = await fetch(`/api/admin/apk-versions?page=${this.currentPage}&pageSize=${this.pageSize}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-          }
-        })
+        const response = await this.apiRequest(`/api/admin/apk-versions?page=${this.currentPage}&pageSize=${this.pageSize}`)
         const data = await response.json()
         this.apkVersions = data.versions
         this.totalVersions = data.total
       } catch (error) {
-        ElMessage.error('加载APK版本失败')
+        if (error.message !== 'Unauthorized') {
+          ElMessage.error('加载APK版本失败')
+        }
       }
     },
     
     async loadAdminConfig() {
       try {
-        const response = await fetch('/api/admin/config', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-          }
-        })
+        const response = await this.apiRequest('/api/admin/config')
         const data = await response.json()
         this.adminConfig = data.adminConfig
       } catch (error) {
-        ElMessage.error('加载管理员配置失败')
+        if (error.message !== 'Unauthorized') {
+          ElMessage.error('加载管理员配置失败')
+        }
       }
     },
     
@@ -405,12 +418,9 @@ export default {
     
     async saveAppInfo() {
       try {
-        const response = await fetch('/api/admin/save-app-info', {
+        const response = await this.apiRequest('/api/admin/save-app-info', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ appInfo: this.appInfo })
         })
         const result = await response.json()
@@ -420,7 +430,9 @@ export default {
           ElMessage.error('保存失败')
         }
       } catch (error) {
-        ElMessage.error('网络错误')
+        if (error.message !== 'Unauthorized') {
+          ElMessage.error('网络错误')
+        }
       }
     },
     
