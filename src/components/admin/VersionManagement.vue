@@ -81,7 +81,13 @@
     />
     
     <!-- 上传对话框 -->
-    <el-dialog v-model="showUploadDialog" title="添加版本" width="600px">
+    <el-dialog 
+      v-model="showUploadDialog" 
+      title="添加版本" 
+      width="600px"
+      :close-on-click-modal="false"
+      append-to-body
+    >
       <el-form :model="uploadForm" label-width="100px">
         <el-form-item label="客户端" required>
           <el-select v-model="uploadForm.client" placeholder="请选择客户端">
@@ -123,7 +129,13 @@
     </el-dialog>
     
     <!-- 编辑对话框 -->
-    <el-dialog v-model="showEditDialog" title="编辑版本" width="600px">
+    <el-dialog 
+      v-model="showEditDialog" 
+      title="编辑版本" 
+      width="600px"
+      :close-on-click-modal="false"
+      append-to-body
+    >
       <el-form :model="editForm" label-width="100px">
         <el-form-item label="客户端">
           <el-select v-model="editForm.client">
@@ -500,5 +512,25 @@ export default {
   color: #909399;
   margin-top: 8px;
   font-style: italic;
+}
+
+/* 弹窗样式优化 */
+:deep(.el-dialog) {
+  max-height: 90vh;
+}
+
+:deep(.el-dialog__body) {
+  max-height: calc(90vh - 120px);
+  overflow-y: auto;
+  padding: 20px;
+}
+
+:deep(.el-form-item) {
+  margin-bottom: 20px;
+}
+
+:deep(.el-textarea__inner) {
+  resize: vertical;
+  min-height: 80px;
 }
 </style>
