@@ -248,11 +248,6 @@ app.post('/api/admin/logout', requireAuth, (req, res) => {
   res.json({ success: true, message: '已退出登录' })
 })
 
-// 验证token有效性
-app.get('/api/admin/verify-token', requireAuth, (req, res) => {
-  res.json({ success: true, message: 'Token有效' })
-})
-
 // 获取管理数据
 app.get('/api/admin/data', (req, res) => {
   const data = readData()
