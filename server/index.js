@@ -12,7 +12,7 @@ app.use(express.json())
 app.use('/downloads', express.static(path.join(__dirname, '../downloads')))
 
 // 数据文件路径
-const DATA_FILE = path.join(__dirname, 'data.json')
+const DATA_FILE = path.join(__dirname, '../data/data.json')
 
 // 初始化数据
 const initData = {
@@ -37,6 +37,12 @@ const initData = {
 // 读取数据
 function readData() {
   try {
+    // 确保数据目录存在
+    const dataDir = path.dirname(DATA_FILE)
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true })
+    }
+    
     if (fs.existsSync(DATA_FILE)) {
       return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'))
     }

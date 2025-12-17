@@ -7,7 +7,7 @@ services:
       - "3000:3001"
     volumes:
       - ./downloads:/app/downloads
-      - ./server/data.json:/app/server/data.json
+      - ./data:/app/data
     environment:
       - NODE_ENV=production
     restart: unless-stopped
