@@ -7,17 +7,23 @@
           <el-input 
             v-model="username" 
             placeholder="用户名"
-            prefix-icon="User"
-          />
+          >
+            <template #prefix>
+              <el-icon><User /></el-icon>
+            </template>
+          </el-input>
         </el-form-item>
         <el-form-item>
           <el-input 
             v-model="password" 
             type="password" 
             placeholder="密码"
-            prefix-icon="Lock"
             @keyup.enter="login"
-          />
+          >
+            <template #prefix>
+              <el-icon><Lock /></el-icon>
+            </template>
+          </el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="login" style="width: 100%">
@@ -31,15 +37,31 @@
 
 <script>
 import { ElMessage } from 'element-plus'
+import { User, Lock } from '@element-plus/icons-vue'
 
 export default {
   name: 'AdminLogin',
+  components: {
+    User,
+    Lock
+  },
   data() {
     return {
       username: '',
       password: ''
     }
   },
+  
+  mounted() {
+    // 禁用页面滚动
+    document.body.style.overflow = 'hidden'
+  },
+  
+  beforeUnmount() {
+    // 恢复页面滚动
+    document.body.style.overflow = ''
+  },
+  
   methods: {
     async login() {
       try {
@@ -71,13 +93,24 @@ export default {
 }
 </script>
 
+<style>
+/* 全局样式，防止滚动条 */
+html, body {
+  overflow: hidden !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+</style>
+
 <style scoped>
 .login-page {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  width: 100vw;
 }
 
 .login-form {
@@ -93,5 +126,14 @@ h2 {
   text-align: center;
   margin-bottom: 30px;
   color: #333;
+}
+
+:deep(.el-input__inner) {
+  height: 45px;
+  line-height: 45px;
+}
+
+:deep(.el-input__wrapper) {
+  padding: 0 15px;
 }
 </style>

@@ -91,7 +91,7 @@ export default {
       
       localStorage.removeItem('adminToken')
       // 保留lastActiveMenu，不清除
-      this.$router.push('/')
+      this.$router.push('/admin')
       ElMessage.success('已退出登录')
     }
   }
@@ -165,5 +165,6 @@ export default {
   padding: 20px;
   overflow-y: auto;
   background: white;
+  height: calc(100vh - 80px);
 }
 </style>

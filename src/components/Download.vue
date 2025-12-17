@@ -86,8 +86,12 @@ export default {
       }
     }
   },
-  mounted() {
-    this.loadData()
+  async mounted() {
+    await this.loadData()
+    // 动态设置页面标题
+    if (this.appInfo.name) {
+      document.title = `${this.appInfo.name} - 应用下载`
+    }
   },
   methods: {
     async loadData() {

@@ -9,10 +9,26 @@ import AdminPanel from './components/AdminPanel.vue'
 import ApiTest from './components/ApiTest.vue'
 
 const routes = [
-  { path: '/', component: Download },
-  { path: '/admin', component: AdminLogin },
-  { path: '/admin-dashboard', component: AdminPanel, meta: { requiresAuth: true } },
-  { path: '/api-doc', component: ApiTest }
+  { 
+    path: '/', 
+    component: Download,
+    meta: { title: '应用下载' }
+  },
+  { 
+    path: '/admin', 
+    component: AdminLogin,
+    meta: { title: '管理员登录' }
+  },
+  { 
+    path: '/admin-dashboard', 
+    component: AdminPanel, 
+    meta: { requiresAuth: true, title: '管理后台' }
+  },
+  { 
+    path: '/api-doc', 
+    component: ApiTest,
+    meta: { title: 'API接口文档' }
+  }
 ]
 
 const router = createRouter({
@@ -21,6 +37,12 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+  // 设置页面标题
+  if (to.meta.title) {
+    document.title = to.meta.title
+  }
+  
+  // 检查权限
   if (to.meta.requiresAuth && !localStorage.getItem('adminToken')) {
     next('/admin')
   } else {
