@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3001"
+    volumes:
+      - ./downloads:/app/downloads
+      - ./server/data.json:/app/server/data.json
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
