@@ -122,6 +122,17 @@ app.get('/download/:id', (req, res) => {
   res.sendFile(filePath)
 })
 
+// 权限校验中间件
+function requireAuth(req, res, next) {
+  const token = req.headers.authorization || req.headers['authorization']
+  
+  if (!token || token !== 'Bearer admin-token') {
+    return res.status(401).json({ success: false, message: '未授权访问' })
+  }
+  
+  next()
+}
+
 // API路由
 // 获取公共数据（前端下载页使用）
 app.get('/api/public', (req, res) => {
@@ -133,19 +144,19 @@ app.get('/api/public', (req, res) => {
 })
 
 // 获取应用信息
-app.get('/api/admin/app-info', (req, res) => {
+app.get('/api/admin/app-info', requireAuth, (req, res) => {
   const data = readData()
   res.json({ appInfo: data.appInfo })
 })
 
 // 获取下载链接
-app.get('/api/admin/download-links', (req, res) => {
+app.get('/api/admin/download-links', requireAuth, (req, res) => {
   const data = readData()
   res.json({ downloadLinks: data.downloadLinks })
 })
 
 // 获取APK版本列表（分页）
-app.get('/api/admin/apk-versions', (req, res) => {
+app.get('/api/admin/apk-versions', requireAuth, (req, res) => {
   const page = parseInt(req.query.page) || 1
   const pageSize = parseInt(req.query.pageSize) || 10
   const data = readData()
@@ -253,14 +264,10 @@ app.post('/api/admin/upload-logo', logoUpload.single('logo'), (req, res) => {
 })
 
 // APK文件上传
-app.post('/api/admin/upload', upload.single('apk'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ success: false, message: '没有文件上传' })
-  }
-  
-  const { version } = req.body
-  if (!version) {
-    return res.status(400).json({ success: false, message: '请填写版本号' })
+app.post('/api/admin/upload', requireAuth, upload.single('apk'), (req, res) => {
+  const { version, versionCode, client, forceUpdate, updateContent } = req.body
+  if (!version || !versionCode || !client) {
+    return res.status(400).json({ success: false, message: '请填写完整信息' })
   }
   
   const data = readData()
@@ -270,26 +277,46 @@ app.post('/api/admin/upload', upload.single('apk'), (req, res) => {
     data.apkVersions = []
   }
   
-  const downloadUrl = `/downloads/${req.file.filename}`
+  let downloadUrl = ''
+  let downloadLink = ''
+  let filename = ''
+  let originalName = ''
+  let fileSize = 0
+  
+  // 如果有文件上传
+  if (req.file) {
+    downloadUrl = `/downloads/${req.file.filename}`
+    downloadLink = `/download/${Date.now()}`
+    filename = req.file.filename
+    originalName = req.file.originalname
+    fileSize = req.file.size
+  }
   
   // 添加到版本列表
   const newVersion = {
     id: Date.now(),
     version,
-    filename: req.file.filename,
-    originalName: req.file.originalname,
+    versionCode: parseInt(versionCode),
+    client,
+    forceUpdate: forceUpdate === 'true',
+    updateContent: updateContent || '',
+    filename,
+    originalName,
     downloadUrl,
     uploadTime: new Date().toISOString(),
-    fileSize: req.file.size
+    fileSize
   }
   
-  const downloadLink = `/download/${newVersion.id}`
-  newVersion.downloadLink = downloadLink
+  if (downloadLink) {
+    newVersion.downloadLink = downloadLink
+  }
   
   data.apkVersions.unshift(newVersion)
   
-  // 更新当前APK下载链接为最新版本
-  data.downloadLinks.androidApk = downloadLink
+  // 更新当前APK下载链接为最新Android版本（仅当有文件时）
+  if (client === 'Android' && downloadLink) {
+    data.downloadLinks.androidApk = downloadLink
+  }
   
   writeData(data)
   
@@ -299,8 +326,71 @@ app.post('/api/admin/upload', upload.single('apk'), (req, res) => {
   })
 })
 
+// 更新版本信息
+app.post('/api/admin/update-version', requireAuth, (req, res) => {
+  const { id, version, versionCode, client, forceUpdate, updateContent } = req.body
+  const data = readData()
+  
+  if (!data.apkVersions) {
+    return res.status(404).json({ success: false, message: '版本不存在' })
+  }
+  
+  const versionIndex = data.apkVersions.findIndex(v => v.id === id)
+  if (versionIndex === -1) {
+    return res.status(404).json({ success: false, message: '版本不存在' })
+  }
+  
+  // 更新版本信息
+  data.apkVersions[versionIndex] = {
+    ...data.apkVersions[versionIndex],
+    version,
+    versionCode: parseInt(versionCode),
+    client,
+    forceUpdate: forceUpdate === true || forceUpdate === 'true',
+    updateContent: updateContent || ''
+  }
+  
+  writeData(data)
+  res.json({ success: true })
+})
+
+// APP版本检查API
+app.get('/api/app/version-check', (req, res) => {
+  const { client } = req.query
+  
+  if (!client || !['Android', 'iOS'].includes(client)) {
+    return res.status(400).json({ success: false, message: '客户端参数错误' })
+  }
+  
+  const data = readData()
+  const versions = data.apkVersions || []
+  
+  // 获取指定客户端的最新版本
+  const clientVersions = versions.filter(v => v.client === client)
+  if (clientVersions.length === 0) {
+    return res.status(404).json({ success: false, message: '暂无版本信息' })
+  }
+  
+  // 按版本代码排序，获取最新版本
+  const latestVersion = clientVersions.sort((a, b) => b.versionCode - a.versionCode)[0]
+  
+  res.json({
+    success: true,
+    data: {
+      version: latestVersion.version,
+      versionCode: latestVersion.versionCode,
+      client: latestVersion.client,
+      forceUpdate: latestVersion.forceUpdate,
+      updateContent: latestVersion.updateContent,
+      downloadUrl: latestVersion.downloadLink || latestVersion.downloadUrl,
+      fileSize: latestVersion.fileSize,
+      uploadTime: latestVersion.uploadTime
+    }
+  })
+})
+
 // 设置当前APK版本
-app.post('/api/admin/set-current-apk', (req, res) => {
+app.post('/api/admin/set-current-apk', requireAuth, (req, res) => {
   const { versionId } = req.body
   const data = readData()
   
@@ -320,7 +410,7 @@ app.post('/api/admin/set-current-apk', (req, res) => {
 })
 
 // 删除APK版本
-app.delete('/api/admin/apk-version/:id', (req, res) => {
+app.delete('/api/admin/apk-version/:id', requireAuth, (req, res) => {
   const versionId = parseInt(req.params.id)
   const data = readData()
   

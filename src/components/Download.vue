@@ -96,6 +96,15 @@ export default {
         const data = await response.json()
         this.appInfo = data.appInfo
         this.downloadLinks = data.downloadLinks
+        
+        // 获取Android最新版本信息
+        const versionResponse = await fetch('/api/app/version-check?client=Android')
+        if (versionResponse.ok) {
+          const versionData = await versionResponse.json()
+          if (versionData.success) {
+            this.downloadLinks.androidApk = versionData.data.downloadUrl
+          }
+        }
       } catch (error) {
         console.error('加载数据失败:', error)
       }

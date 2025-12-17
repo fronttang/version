@@ -1,0 +1,60 @@
+{
+  "appInfo": {
+    "name": "泳池机器人",
+    "version": "",
+    "description": "",
+    "logo": "/downloads/1765955708847_logo.png"
+  },
+  "downloadLinks": {
+    "googlePlay": "https://play.google.com/...",
+    "appStore": "https://apps.apple.com/...",
+    "androidApk": "/download/1765956069188"
+  },
+  "apkVersions": [
+    {
+      "id": 1765956468326,
+      "version": "1.0.1",
+      "versionCode": 101,
+      "client": "iOS",
+      "forceUpdate": true,
+      "updateContent": "## 主要修改\r\n1. 后端优化：\r\n   - 移除了文件上传的必须检查\r\n   - 支持无文件的版本记录\r\n   - 只有Android版本且有文件时才更新下载链接\r\n2. 前端优化：\r\n   - 移除了文件选择的必须标识\r\n   - 添加提示\"iOS版本可不上传文件\"\r\n   - 移除了文件必须选择的验证\r\n3. 表格显示：\r\n   - 有文件时显示可点击的文件名链接\r\n   - 无文件时显示\"无文件\"的灰色文字\r\n   - 点击无文件版本时给出提示\r\n4. 下载处理：\r\n   - 检查版本是否有文件可下载\r\n   - 无文件时给出友好提示\r\n现在可以灵活地管理不同类型的版本：\r\n- Android版本：可以上传APK文件\r\n- iOS版本：通常不上传文件，只记录版本信息用于版本检查API",
+      "filename": "",
+      "originalName": "",
+      "downloadUrl": "",
+      "uploadTime": "2025-12-17T07:27:48.326Z",
+      "fileSize": 0
+    },
+    {
+      "id": 1765956069188,
+      "version": "1.0.31",
+      "versionCode": 1031,
+      "client": "Android",
+      "forceUpdate": true,
+      "updateContent": "## 主要优化\r\n1. 移除更新内容列：\r\n   - 表格更简洁，不会因为长文本影响布局\r\n   - 更新内容在编辑时可以查看和修改\r\n2. 强制更新直接操作：\r\n   - 表格中的强制更新改为开关按钮\r\n   - 可以直接点击切换，立即生效\r\n   - 操作失败时自动恢复原状态\r\n3. 编辑支持重新上传：\r\n   - 编辑对话框中可以选择新的APK文件\r\n   - 不选择文件则保持原文件不变\r\n   - 选择新文件会替换整个版本记录\r\n4. 交互优化：\r\n   - 添加loading状态提示\r\n   - 更好的错误处理和用户反馈\r\n   - 操作完成后自动刷新列表",
+      "filename": "1765956068424_DAT1.0.31.apk",
+      "originalName": "DAT1.0.31.apk",
+      "downloadUrl": "/downloads/1765956068424_DAT1.0.31.apk",
+      "uploadTime": "2025-12-17T07:21:09.188Z",
+      "fileSize": 90371015,
+      "downloadLink": "/download/1765956069188"
+    },
+    {
+      "id": 1765955788544,
+      "version": "1.0.30",
+      "versionCode": 1030,
+      "client": "Android",
+      "forceUpdate": true,
+      "updateContent": "## 新增功能\r\n1. 版本管理字段：\r\n   - 客户端类型（Android/iOS）\r\n   - 版本代码（数字，用于版本比较）\r\n   - 强制更新标志\r\n   - 更新内容描述\r\n2. 管理后台功能：\r\n   - 添加版本时填写完整信息\r\n   - 表格显示所有新字段\r\n   - 可以编辑版本信息\r\n   - 更新内容支持tooltip显示\r\n3. 前端优化：\r\n   - 只显示Android最新版本的APK下载\r\n   - 自动获取最新版本链接\r\n4. APP版本检查API：",
+      "filename": "1765955787727_DAT1.0.30.apk",
+      "originalName": "DAT1.0.30.apk",
+      "downloadUrl": "/downloads/1765955787727_DAT1.0.30.apk",
+      "uploadTime": "2025-12-17T07:16:28.544Z",
+      "fileSize": 90371015,
+      "downloadLink": "/download/1765955788544"
+    }
+  ],
+  "adminConfig": {
+    "username": "admin",
+    "password": "admin123"
+  }
+}
