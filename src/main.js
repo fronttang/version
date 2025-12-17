@@ -18,9 +18,33 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth && !localStorage.getItem('adminToken')) {
-    next('/admin')
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth) {
+    const token = localStorage.getItem('adminToken')
+    
+    if (!token) {
+      next('/admin')
+      return
+    }
+    
+    // 验证token有效性
+    try {
+      const response = await fetch('/api/admin/verify-token', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        next()
+      } else {
+        localStorage.removeItem('adminToken')
+        next('/admin')
+      }
+    } catch (error) {
+      localStorage.removeItem('adminToken')
+      next('/admin')
+    }
   } else {
     next()
   }

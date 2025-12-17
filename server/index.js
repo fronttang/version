@@ -122,11 +122,24 @@ app.get('/download/:id', (req, res) => {
   res.sendFile(filePath)
 })
 
+// 存储当前有效的token
+let currentToken = null
+
+// 生成UUID格式的token
+function generateToken() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0
+    const v = c == 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
+
 // 权限校验中间件
 function requireAuth(req, res, next) {
-  const token = req.headers.authorization || req.headers['authorization']
+  const authHeader = req.headers.authorization || req.headers['authorization']
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null
   
-  if (!token || token !== 'Bearer admin-token') {
+  if (!token || token !== currentToken) {
     return res.status(401).json({ success: false, message: '未授权访问' })
   }
   
@@ -211,10 +224,23 @@ app.post('/api/admin/login', (req, res) => {
   const data = readData()
   
   if (username === data.adminConfig.username && password === data.adminConfig.password) {
-    res.json({ success: true, token: 'admin-token' })
+    // 生成新的token
+    currentToken = generateToken()
+    res.json({ success: true, token: currentToken })
   } else {
     res.status(401).json({ success: false, message: '用户名或密码错误' })
   }
+})
+
+// 管理员登出
+app.post('/api/admin/logout', requireAuth, (req, res) => {
+  currentToken = null
+  res.json({ success: true, message: '已退出登录' })
+})
+
+// 验证token有效性
+app.get('/api/admin/verify-token', requireAuth, (req, res) => {
+  res.json({ success: true, message: 'Token有效' })
 })
 
 // 获取管理数据

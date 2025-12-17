@@ -428,7 +428,10 @@ export default {
       try {
         const response = await fetch('/api/admin/save-download-links', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+          },
           body: JSON.stringify({ downloadLinks: this.downloadLinks })
         })
         const result = await response.json()
@@ -446,7 +449,10 @@ export default {
       try {
         const response = await fetch('/api/admin/save-config', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+          },
           body: JSON.stringify({ adminConfig: this.adminConfig })
         })
         const result = await response.json()
@@ -492,7 +498,10 @@ export default {
       try {
         const response = await fetch('/api/admin/update-version', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+          },
           body: JSON.stringify({
             id: version.id,
             version: version.version,
@@ -545,12 +554,18 @@ export default {
           
           // 先删除旧版本
           await fetch(`/api/admin/apk-version/${this.editForm.id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+            }
           })
           
           // 上传新版本
           const response = await fetch('/api/admin/upload', {
             method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+            },
             body: formData
           })
           
@@ -562,7 +577,10 @@ export default {
           // 只更新版本信息
           const response = await fetch('/api/admin/update-version', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+            },
             body: JSON.stringify(this.editForm)
           })
           
@@ -611,6 +629,9 @@ export default {
         
         const response = await fetch('/api/admin/upload', {
           method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+          },
           body: formData
         })
         
@@ -655,7 +676,8 @@ export default {
         const response = await fetch('/api/admin/set-current-apk', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
           },
           body: JSON.stringify({ versionId })
         })
@@ -681,7 +703,10 @@ export default {
         })
         
         const response = await fetch(`/api/admin/apk-version/${versionId}`, {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+          }
         })
         
         const result = await response.json()
@@ -711,7 +736,18 @@ export default {
       return new Date(timeString).toLocaleString('zh-CN')
     },
     
-    logout() {
+    async logout() {
+      try {
+        await fetch('/api/admin/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+          }
+        })
+      } catch (error) {
+        // 忽略网络错误，继续退出
+      }
+      
       localStorage.removeItem('adminToken')
       this.$router.push('/')
       ElMessage.success('已退出登录')
