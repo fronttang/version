@@ -7,7 +7,7 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3000,
     proxy: {
-      '/api': {
+      '^/api/': {
         target: 'http://localhost:3001',
         changeOrigin: true
       },
@@ -18,6 +18,13 @@ export default defineConfig({
       '/download': {
         target: 'http://localhost:3001',
         changeOrigin: true
+      }
+    }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
       }
     }
   }

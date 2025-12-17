@@ -499,7 +499,13 @@ app.post('/api/admin/reset', (req, res) => {
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../dist')))
   
+  // 前端路由fallback
   app.get('*', (req, res) => {
+    // 如果是API请求，返回404
+    if (req.path.startsWith('/api/') || req.path.startsWith('/download/')) {
+      return res.status(404).json({ error: 'Not found' })
+    }
+    // 其他路由返回index.html
     res.sendFile(path.join(__dirname, '../dist/index.html'))
   })
 }

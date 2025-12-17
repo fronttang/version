@@ -6,11 +6,13 @@ import App from './App.vue'
 import Download from './components/Download.vue'
 import AdminLogin from './components/AdminLogin.vue'
 import AdminPanel from './components/AdminPanel.vue'
+import ApiTest from './components/ApiTest.vue'
 
 const routes = [
   { path: '/', component: Download },
   { path: '/admin', component: AdminLogin },
-  { path: '/admin-dashboard', component: AdminPanel, meta: { requiresAuth: true } }
+  { path: '/admin-dashboard', component: AdminPanel, meta: { requiresAuth: true } },
+  { path: '/api-doc', component: ApiTest }
 ]
 
 const router = createRouter({

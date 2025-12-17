@@ -42,6 +42,7 @@ Thumbs.db
 
 # Uploaded files
 downloads/
+data/
 
 # Temporary files
 *.tmp
