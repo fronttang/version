@@ -14,7 +14,13 @@ app.use(cors())
 app.use('/downloads', express.static(path.join(__dirname, '../downloads')))
 
 // 数据文件路径
-const DATA_FILE = path.join(__dirname, '../data/data.json')
+const DATA_DIR = path.join(__dirname, '../data')
+const DATA_FILES = {
+  appInfo: path.join(DATA_DIR, 'app-info.json'),
+  downloadLinks: path.join(DATA_DIR, 'download-links.json'),
+  apkVersions: path.join(DATA_DIR, 'versions.json'),
+  adminConfig: path.join(DATA_DIR, 'admin-config.json')
+}
 
 // 初始化数据
 const initData = {
@@ -36,17 +42,42 @@ const initData = {
   }
 }
 
+// 读取单个文件
+function readFile(filePath, defaultValue) {
+  try {
+    if (fs.existsSync(filePath)) {
+      return JSON.parse(fs.readFileSync(filePath, 'utf8'))
+    }
+  } catch (error) {
+    console.error('读取文件失败:', filePath, error)
+  }
+  return defaultValue
+}
+
+// 写入单个文件
+function writeFile(filePath, data) {
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2))
+    return true
+  } catch (error) {
+    console.error('写入文件失败:', filePath, error)
+    return false
+  }
+}
+
 // 读取数据
 function readData() {
   try {
     // 确保数据目录存在
-    const dataDir = path.dirname(DATA_FILE)
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true })
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true })
     }
     
-    if (fs.existsSync(DATA_FILE)) {
-      return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'))
+    return {
+      appInfo: readFile(DATA_FILES.appInfo, initData.appInfo),
+      downloadLinks: readFile(DATA_FILES.downloadLinks, initData.downloadLinks),
+      apkVersions: readFile(DATA_FILES.apkVersions, initData.apkVersions),
+      adminConfig: readFile(DATA_FILES.adminConfig, initData.adminConfig)
     }
   } catch (error) {
     console.error('读取数据失败:', error)
@@ -57,7 +88,10 @@ function readData() {
 // 写入数据
 function writeData(data) {
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2))
+    if (data.appInfo !== undefined) writeFile(DATA_FILES.appInfo, data.appInfo)
+    if (data.downloadLinks !== undefined) writeFile(DATA_FILES.downloadLinks, data.downloadLinks)
+    if (data.apkVersions !== undefined) writeFile(DATA_FILES.apkVersions, data.apkVersions)
+    if (data.adminConfig !== undefined) writeFile(DATA_FILES.adminConfig, data.adminConfig)
     return true
   } catch (error) {
     console.error('写入数据失败:', error)
@@ -429,12 +463,19 @@ app.post('/api/admin/set-current-apk', requireAuth, (req, res) => {
     data.apkVersions = []
   }
   
-  const version = data.apkVersions.find(v => v.id === versionId)
+  const version = data.apkVersions.find(v => v.id == versionId)
   if (!version) {
     return res.status(404).json({ success: false, message: '版本不存在' })
   }
   
-  data.downloadLinks.androidApk = version.downloadLink || version.downloadUrl
+  // 清除所有版本的当前标记
+  data.apkVersions.forEach(v => v.isCurrent = false)
+  // 设置当前版本
+  version.isCurrent = true
+  
+  // 更新downloadLinks（有文件则设置，无文件则清空）
+  data.downloadLinks.androidApk = version.downloadLink || version.downloadUrl || ''
+  
   writeData(data)
   
   res.json({ success: true })
@@ -456,11 +497,13 @@ app.delete('/api/admin/apk-version/:id', requireAuth, (req, res) => {
   
   const version = data.apkVersions[versionIndex]
   
-  // 删除文件
+  // 删除文件（仅当有文件名时）
   try {
-    const filePath = path.join(__dirname, '../downloads', version.filename)
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath)
+    if (version.filename) {
+      const filePath = path.join(__dirname, '../downloads', version.filename)
+      if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        fs.unlinkSync(filePath)
+      }
     }
   } catch (error) {
     console.error('删除文件失败:', error)

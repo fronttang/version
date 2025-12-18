@@ -93,16 +93,6 @@ export default {
 }
 </script>
 
-<style>
-/* 全局样式，防止滚动条 */
-html, body {
-  overflow: hidden !important;
-  height: 100vh !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-</style>
-
 <style scoped>
 .login-page {
   height: 100vh;
@@ -111,6 +101,10 @@ html, body {
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
 }
 
 .login-form {

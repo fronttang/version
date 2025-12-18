@@ -37,7 +37,7 @@
       </el-table-column>
       <el-table-column label="状态" width="100">
         <template #default="scope">
-          <el-tag v-if="downloadLinks.androidApk === scope.row.downloadUrl || downloadLinks.androidApk === scope.row.downloadLink" type="success">
+          <el-tag v-if="scope.row.isCurrent || (downloadLinks.androidApk && (downloadLinks.androidApk === scope.row.downloadUrl || downloadLinks.androidApk === scope.row.downloadLink))" type="success">
             当前版本
           </el-tag>
         </template>
@@ -52,7 +52,7 @@
             编辑
           </el-button>
           <el-button 
-            v-if="downloadLinks.androidApk !== scope.row.downloadUrl && downloadLinks.androidApk !== scope.row.downloadLink"
+            v-if="!scope.row.isCurrent && !(downloadLinks.androidApk && (downloadLinks.androidApk === scope.row.downloadUrl || downloadLinks.androidApk === scope.row.downloadLink))"
             size="small" 
             type="success" 
             @click="setCurrentVersion(scope.row.id)"
@@ -420,6 +420,7 @@ export default {
         
         const result = await response.json()
         if (result.success) {
+          await this.loadApkVersions()
           await this.loadDownloadLinks()
           ElMessage.success('已设置为当前版本')
         } else {

@@ -375,6 +375,7 @@ export default {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #fafafa;
   min-height: 100vh;
+  overflow: auto;
 }
 
 .swagger-header {
