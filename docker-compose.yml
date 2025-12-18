@@ -28,6 +28,8 @@ services:
       - ./ssl:/app/ssl
       # 缓存目录
       - nginx_cache:/tmp/nginx_cache
+      # 直接访问下载文件 - 最高性能
+      - ./downloads:/app/downloads:ro
     depends_on:
       app:
         condition: service_healthy

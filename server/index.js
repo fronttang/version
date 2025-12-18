@@ -141,7 +141,7 @@ const logoUpload = multer({
   }
 })
 
-// 文件下载路由
+// 优化的文件下载路由
 app.get('/download/:id', (req, res) => {
   const versionId = parseInt(req.params.id)
   const data = readData()
@@ -160,10 +160,110 @@ app.get('/download/:id', (req, res) => {
     return res.status(404).json({ success: false, message: '文件不存在' })
   }
   
-  // 设置正确的Content-Type和下载文件名
-  res.setHeader('Content-Type', 'application/vnd.android.package-archive')
-  res.setHeader('Content-Disposition', `attachment; filename="${version.originalName}"`)
-  res.sendFile(filePath)
+  try {
+    const stat = fs.statSync(filePath)
+    const fileSize = stat.size
+    const range = req.headers.range
+    
+    // 设置基本响应头
+    res.setHeader('Content-Type', 'application/vnd.android.package-archive')
+    res.setHeader('Content-Disposition', `attachment; filename="${version.originalName}"`)
+    res.setHeader('Accept-Ranges', 'bytes')
+    res.setHeader('Content-Length', fileSize)
+    
+    // 缓存优化
+    res.setHeader('Cache-Control', 'public, max-age=31536000') // 1年缓存
+    res.setHeader('ETag', `"${stat.mtime.getTime()}-${fileSize}"`)
+    
+    // 检查 If-None-Match (ETag 缓存)
+    if (req.headers['if-none-match'] === `"${stat.mtime.getTime()}-${fileSize}"`) {
+      return res.status(304).end()
+    }
+    
+    // 支持断点续传
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-")
+      const start = parseInt(parts[0], 10)
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1
+      const chunksize = (end - start) + 1
+      
+      if (start >= fileSize || end >= fileSize) {
+        res.status(416).setHeader('Content-Range', `bytes */${fileSize}`)
+        return res.end()
+      }
+      
+      res.status(206)
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`)
+      res.setHeader('Content-Length', chunksize)
+      
+      // 创建流式读取
+      const stream = fs.createReadStream(filePath, { start, end })
+      stream.pipe(res)
+      
+      stream.on('error', (err) => {
+        console.error('文件流错误:', err)
+        if (!res.headersSent) {
+          res.status(500).json({ success: false, message: '文件读取错误' })
+        }
+      })
+    } else {
+      // 完整文件下载 - 使用流式传输
+      res.status(200)
+      const stream = fs.createReadStream(filePath)
+      stream.pipe(res)
+      
+      stream.on('error', (err) => {
+        console.error('文件流错误:', err)
+        if (!res.headersSent) {
+          res.status(500).json({ success: false, message: '文件读取错误' })
+        }
+      })
+    }
+    
+  } catch (error) {
+    console.error('下载文件错误:', error)
+    res.status(500).json({ success: false, message: '服务器错误' })
+  }
+})
+
+// 直接文件下载路由 - 最高性能（可选）
+app.get('/direct-download/:filename', (req, res) => {
+  const filename = req.params.filename
+  
+  // 安全检查 - 防止路径遍历攻击
+  if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+    return res.status(400).json({ success: false, message: '无效的文件名' })
+  }
+  
+  const filePath = path.join(__dirname, '../downloads', filename)
+  
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ success: false, message: '文件不存在' })
+  }
+  
+  try {
+    const stat = fs.statSync(filePath)
+    
+    // 设置响应头
+    res.setHeader('Content-Type', 'application/vnd.android.package-archive')
+    res.setHeader('Content-Length', stat.size)
+    res.setHeader('Accept-Ranges', 'bytes')
+    res.setHeader('Cache-Control', 'public, max-age=31536000')
+    res.setHeader('ETag', `"${stat.mtime.getTime()}-${stat.size}"`)
+    
+    // 使用 X-Accel-Redirect 让 Nginx 直接处理文件传输
+    if (process.env.NODE_ENV === 'production') {
+      res.setHeader('X-Accel-Redirect', `/downloads/${filename}`)
+      res.end()
+    } else {
+      // 开发环境直接发送文件
+      res.sendFile(filePath)
+    }
+    
+  } catch (error) {
+    console.error('直接下载错误:', error)
+    res.status(500).json({ success: false, message: '服务器错误' })
+  }
 })
 
 // 存储当前有效的token
