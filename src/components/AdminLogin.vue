@@ -53,13 +53,7 @@ export default {
   },
   
   mounted() {
-    // 禁用页面滚动
-    document.body.style.overflow = 'hidden'
-  },
-  
-  beforeUnmount() {
-    // 恢复页面滚动
-    document.body.style.overflow = ''
+    // 移动端优化 - 不需要禁用滚动，因为已经在全局处理了
   },
   
   methods: {
@@ -95,15 +89,14 @@ export default {
 
 <style scoped>
 .login-page {
-  height: 100vh;
+  min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  width: 100vw;
-  position: fixed;
-  top: 0;
-  left: 0;
+  width: 100%;
+  padding: 20px;
   overflow: hidden;
 }
 
@@ -129,5 +122,43 @@ h2 {
 
 :deep(.el-input__wrapper) {
   padding: 0 15px;
+}
+
+/* 移动端优化 */
+@media (max-width: 480px) {
+  .login-page {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: max(20px, env(safe-area-inset-top, 20px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  }
+  
+  .login-form {
+    padding: 30px 24px;
+    margin: auto 0;
+  }
+  
+  h2 {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+}
+
+/* 横屏模式优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+  .login-page {
+    align-items: flex-start;
+    padding: 12px;
+  }
+  
+  .login-form {
+    padding: 24px 20px;
+    margin: 0;
+  }
+  
+  h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
 }
 </style>

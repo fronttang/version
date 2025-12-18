@@ -111,11 +111,14 @@ export default {
 <style scoped>
 .download-page {
   min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
   display: flex;
   align-items: center;
   justify-content: center;
   background: #f5f5f5;
   padding: 20px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .container {
@@ -239,11 +242,18 @@ h1 {
 @media (max-width: 480px) {
   .download-page {
     padding: 16px;
+    min-height: calc(var(--vh, 1vh) * 100);
+    align-items: flex-start;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
   
   .container {
     padding: 24px 20px;
     border-radius: 20px;
+    margin: auto 0;
+    width: 100%;
+    max-width: 100%;
   }
   
   h1 {
@@ -274,6 +284,65 @@ h1 {
   
   .btn-subtitle {
     font-size: 13px;
+  }
+}
+
+/* iPhone 特殊优化 */
+@media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+  .download-page {
+    padding: 12px;
+    justify-content: flex-start;
+    padding-top: max(20px, env(safe-area-inset-top, 20px));
+  }
+  
+  .container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+/* 横屏模式优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+  .download-page {
+    align-items: flex-start;
+    padding: 12px;
+  }
+  
+  .container {
+    margin: 0;
+    padding: 20px 16px;
+  }
+  
+  .app-info {
+    margin-bottom: 24px;
+  }
+  
+  .app-icon .logo-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  h1 {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  
+  .version {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .description {
+    font-size: 13px;
+  }
+  
+  .download-buttons {
+    gap: 12px;
+  }
+  
+  .download-btn {
+    padding: 14px 16px;
+    min-height: 56px;
   }
 }
 

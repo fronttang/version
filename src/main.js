@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import './styles/mobile-optimization.css'
 import App from './App.vue'
 import Download from './components/Download.vue'
 import AdminLogin from './components/AdminLogin.vue'
@@ -49,6 +50,30 @@ router.beforeEach((to, from, next) => {
     next()
   }
 })
+
+// 动态计算视口高度 - 解决移动端地址栏问题
+function setViewportHeight() {
+  const vh = window.innerHeight * 0.01
+  document.documentElement.style.setProperty('--vh', `${vh}px`)
+}
+
+// 初始设置
+setViewportHeight()
+
+// 监听窗口大小变化
+window.addEventListener('resize', setViewportHeight)
+window.addEventListener('orientationchange', () => {
+  setTimeout(setViewportHeight, 100)
+})
+
+// iOS Safari 特殊处理
+if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+  window.addEventListener('scroll', () => {
+    if (window.scrollY === 0) {
+      setViewportHeight()
+    }
+  })
+}
 
 const app = createApp(App)
 app.use(router)

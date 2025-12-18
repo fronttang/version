@@ -1,0 +1,147 @@
+/* 移动端滚动条优化 CSS */
+
+/* 基础重置 */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 允许文本选择的元素 */
+input, textarea, [contenteditable] {
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+
+/* iOS Safari 视口高度修复 */
+:root {
+  --vh: 1vh;
+}
+
+/* 动态视口高度支持 */
+@supports (height: 100dvh) {
+  :root {
+    --vh: 1dvh;
+  }
+}
+
+/* iOS Safari 特殊处理 */
+@supports (-webkit-touch-callout: none) {
+  :root {
+    --vh: 1vh;
+  }
+  
+  html {
+    height: -webkit-fill-available;
+  }
+  
+  body {
+    height: -webkit-fill-available;
+  }
+}
+
+/* 防止橡皮筋效果 */
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 隐藏滚动条 */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 安全区域适配 */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* 全屏容器 */
+.fullscreen-container {
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
+}
+
+/* 可滚动容器 */
+.scrollable-container {
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* iPhone X 及以上设备的刘海适配 */
+@media only screen 
+  and (device-width: 375px) 
+  and (device-height: 812px) 
+  and (-webkit-device-pixel-ratio: 3) {
+  .iphone-x-safe {
+    padding-top: 44px;
+    padding-bottom: 34px;
+  }
+}
+
+/* iPhone 12/13/14 适配 */
+@media only screen 
+  and (device-width: 390px) 
+  and (device-height: 844px) 
+  and (-webkit-device-pixel-ratio: 3) {
+  .iphone-12-safe {
+    padding-top: 47px;
+    padding-bottom: 34px;
+  }
+}
+
+/* 通用移动端优化 */
+@media (max-width: 480px) {
+  /* 防止水平滚动 */
+  * {
+    max-width: 100%;
+  }
+  
+  /* 优化触摸滚动 */
+  .touch-scroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+  }
+  
+  /* 防止缩放 */
+  input, select, textarea {
+    font-size: 16px; /* 防止 iOS 缩放 */
+  }
+}
+
+/* 横屏模式优化 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .landscape-optimize {
+    padding: 8px;
+  }
+}
+
+/* 高 DPI 屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .retina-optimize {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
