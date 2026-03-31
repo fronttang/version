@@ -21,6 +21,9 @@
           <el-menu-item index="upload">
             <span>版本管理</span>
           </el-menu-item>
+          <el-menu-item index="privacy">
+            <span>隐私政策</span>
+          </el-menu-item>
           <el-menu-item index="account">
             <span>账号设置</span>
           </el-menu-item>
@@ -49,6 +52,7 @@ export default {
         app: () => import('./admin/AppInfo.vue'),
         links: () => import('./admin/DownloadLinks.vue'),
         upload: () => import('./admin/VersionManagement.vue'),
+        privacy: () => import('./admin/PrivacyPolicy.vue'),
         account: () => import('./admin/AccountSettings.vue')
       }
     }

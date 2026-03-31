@@ -1,6 +1,10 @@
 <template>
   <div class="download-page">
     <div class="container">
+      <div class="container-top-actions">
+        <router-link to="/privacy-policy" class="policy-link">Privacy Policy</router-link>
+      </div>
+
       <div class="app-info">
         <div class="app-icon">
           <img v-if="appInfo.logo" :src="appInfo.logo" class="logo-image" />
@@ -25,7 +29,7 @@
           </div>
           <div class="btn-text">
             <div class="btn-title">Google Play</div>
-            <div class="btn-subtitle">Android 官方商店</div>
+            <div class="btn-subtitle">Android Official Store</div>
           </div>
         </a>
         
@@ -42,7 +46,7 @@
           </div>
           <div class="btn-text">
             <div class="btn-title">App Store</div>
-            <div class="btn-subtitle">iOS 官方商店</div>
+            <div class="btn-subtitle">iOS Official Store</div>
           </div>
         </a>
         
@@ -61,7 +65,7 @@
           </div>
           <div class="btn-text">
             <div class="btn-title">Android APK</div>
-            <div class="btn-subtitle">直接下载安装包</div>
+            <div class="btn-subtitle">Download APK Directly</div>
           </div>
         </a>
       </div>
@@ -88,9 +92,8 @@ export default {
   },
   async mounted() {
     await this.loadData()
-    // 动态设置页面标题
     if (this.appInfo.name) {
-      document.title = `${this.appInfo.name} - 应用下载`
+      document.title = `${this.appInfo.name} - Download`
     }
   },
   methods: {
@@ -122,14 +125,32 @@ export default {
 }
 
 .container {
+  position: relative;
   background: white;
   border-radius: 24px;
-  padding: 32px 24px;
+  padding: 72px 24px 32px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.08);
   text-align: center;
   max-width: 400px;
   width: 100%;
   border: 1px solid #e5e5e5;
+}
+
+.container-top-actions {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+}
+
+.policy-link {
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.policy-link:hover {
+  text-decoration: underline;
 }
 
 .app-info {
@@ -249,11 +270,16 @@ h1 {
   }
   
   .container {
-    padding: 24px 20px;
+    padding: 68px 20px 24px;
     border-radius: 20px;
     margin: auto 0;
     width: 100%;
     max-width: 100%;
+  }
+
+  .container-top-actions {
+    top: 20px;
+    right: 20px;
   }
   
   h1 {
@@ -310,7 +336,7 @@ h1 {
   
   .container {
     margin: 0;
-    padding: 20px 16px;
+    padding: 56px 16px 20px;
   }
   
   .app-info {
@@ -350,7 +376,7 @@ h1 {
 @media (min-width: 768px) {
   .container {
     max-width: 480px;
-    padding: 40px 32px;
+    padding: 80px 32px 40px;
   }
   
   .download-buttons {

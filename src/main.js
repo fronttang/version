@@ -5,6 +5,7 @@ import 'element-plus/dist/index.css'
 import './styles/mobile-optimization.css'
 import App from './App.vue'
 import Download from './components/Download.vue'
+import PrivacyPolicy from './components/PrivacyPolicy.vue'
 import AdminLogin from './components/AdminLogin.vue'
 import AdminPanel from './components/AdminPanel.vue'
 import ApiTest from './components/ApiTest.vue'
@@ -13,7 +14,12 @@ const routes = [
   { 
     path: '/', 
     component: Download,
-    meta: { title: '应用下载' }
+    meta: { title: 'App Download' }
+  },
+  {
+    path: '/privacy-policy',
+    component: PrivacyPolicy,
+    meta: { title: 'Privacy Policy' }
   },
   { 
     path: '/admin', 

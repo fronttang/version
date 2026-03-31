@@ -19,7 +19,8 @@ const DATA_FILES = {
   appInfo: path.join(DATA_DIR, 'app-info.json'),
   downloadLinks: path.join(DATA_DIR, 'download-links.json'),
   apkVersions: path.join(DATA_DIR, 'versions.json'),
-  adminConfig: path.join(DATA_DIR, 'admin-config.json')
+  adminConfig: path.join(DATA_DIR, 'admin-config.json'),
+  privacyPolicy: path.join(DATA_DIR, 'privacy-policy.json')
 }
 
 // 初始化数据
@@ -34,6 +35,9 @@ const initData = {
     googlePlay: '',
     appStore: '',
     androidApk: ''
+  },
+  privacyPolicy: {
+    content: '<h2>Privacy Policy</h2><p>Please edit this privacy policy in the admin panel.</p>'
   },
   apkVersions: [],
   adminConfig: {
@@ -76,6 +80,7 @@ function readData() {
     return {
       appInfo: readFile(DATA_FILES.appInfo, initData.appInfo),
       downloadLinks: readFile(DATA_FILES.downloadLinks, initData.downloadLinks),
+      privacyPolicy: readFile(DATA_FILES.privacyPolicy, initData.privacyPolicy),
       apkVersions: readFile(DATA_FILES.apkVersions, initData.apkVersions),
       adminConfig: readFile(DATA_FILES.adminConfig, initData.adminConfig)
     }
@@ -90,6 +95,7 @@ function writeData(data) {
   try {
     if (data.appInfo !== undefined) writeFile(DATA_FILES.appInfo, data.appInfo)
     if (data.downloadLinks !== undefined) writeFile(DATA_FILES.downloadLinks, data.downloadLinks)
+    if (data.privacyPolicy !== undefined) writeFile(DATA_FILES.privacyPolicy, data.privacyPolicy)
     if (data.apkVersions !== undefined) writeFile(DATA_FILES.apkVersions, data.apkVersions)
     if (data.adminConfig !== undefined) writeFile(DATA_FILES.adminConfig, data.adminConfig)
     return true
@@ -296,7 +302,8 @@ app.get('/api/public', (req, res) => {
   const data = readData()
   res.json({
     appInfo: data.appInfo,
-    downloadLinks: data.downloadLinks
+    downloadLinks: data.downloadLinks,
+    privacyPolicy: data.privacyPolicy
   })
 })
 
@@ -310,6 +317,12 @@ app.get('/api/admin/app-info', requireAuth, (req, res) => {
 app.get('/api/admin/download-links', requireAuth, (req, res) => {
   const data = readData()
   res.json({ downloadLinks: data.downloadLinks })
+})
+
+// 获取隐私政策
+app.get('/api/admin/privacy-policy', requireAuth, (req, res) => {
+  const data = readData()
+  res.json({ privacyPolicy: data.privacyPolicy })
 })
 
 // 获取APK版本列表（分页）
@@ -350,6 +363,17 @@ app.post('/api/admin/save-app-info', (req, res) => {
 app.post('/api/admin/save-download-links', (req, res) => {
   const data = readData()
   data.downloadLinks = { ...data.downloadLinks, ...req.body.downloadLinks }
+  const success = writeData(data)
+  res.json({ success })
+})
+
+// 保存隐私政策
+app.post('/api/admin/save-privacy-policy', requireAuth, (req, res) => {
+  const data = readData()
+  data.privacyPolicy = {
+    ...initData.privacyPolicy,
+    ...req.body.privacyPolicy
+  }
   const success = writeData(data)
   res.json({ success })
 })
