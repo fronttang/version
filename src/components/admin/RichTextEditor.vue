@@ -2,9 +2,9 @@
   <div class="rich-text-editor">
     <div class="toolbar">
       <el-button-group>
-        <el-button @click="formatBlock('<h1>')">H1</el-button>
-        <el-button @click="formatBlock('<h2>')">H2</el-button>
-        <el-button @click="formatBlock('<p>')">P</el-button>
+        <el-button @mousedown.prevent @click="formatBlock('<h1>')">H1</el-button>
+        <el-button @mousedown.prevent @click="formatBlock('<h2>')">H2</el-button>
+        <el-button @mousedown.prevent @click="formatBlock('<p>')">P</el-button>
       </el-button-group>
 
       <el-select
@@ -21,19 +21,25 @@
       </el-select>
 
       <el-button-group>
-        <el-button @click="applyCommand('bold')"><strong>B</strong></el-button>
-        <el-button @click="applyCommand('italic')"><em>I</em></el-button>
-        <el-button @click="applyCommand('underline')"><u>U</u></el-button>
+        <el-button @mousedown.prevent @click="applyCommand('bold')"><strong>B</strong></el-button>
+        <el-button @mousedown.prevent @click="applyCommand('italic')"><em>I</em></el-button>
+        <el-button @mousedown.prevent @click="applyCommand('underline')"><u>U</u></el-button>
       </el-button-group>
 
       <el-button-group>
-        <el-button @click="applyCommand('insertUnorderedList')">List</el-button>
-        <el-button @click="applyCommand('insertOrderedList')">Number</el-button>
+        <el-button @mousedown.prevent @click="applyCommand('insertUnorderedList')">List</el-button>
+        <el-button @mousedown.prevent @click="applyCommand('insertOrderedList')">Number</el-button>
       </el-button-group>
 
       <el-button-group>
-        <el-button @click="createLink">Link</el-button>
-        <el-button @click="applyCommand('unlink')">Unlink</el-button>
+        <el-button @mousedown.prevent @click="applyAlignment('justifyLeft')">Left</el-button>
+        <el-button @mousedown.prevent @click="applyAlignment('justifyCenter')">Center</el-button>
+        <el-button @mousedown.prevent @click="applyAlignment('justifyRight')">Right</el-button>
+      </el-button-group>
+
+      <el-button-group>
+        <el-button @mousedown.prevent @click="createLink">Link</el-button>
+        <el-button @mousedown.prevent @click="applyCommand('unlink')">Unlink</el-button>
       </el-button-group>
     </div>
 
@@ -135,6 +141,12 @@ export default {
     applyCommand(command, value = null) {
       this.restoreSelection()
       document.execCommand(command, false, value)
+      this.focusEditor()
+      this.handleInput()
+    },
+    applyAlignment(command) {
+      this.restoreSelection()
+      document.execCommand(command, false, null)
       this.focusEditor()
       this.handleInput()
     },
