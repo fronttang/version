@@ -113,18 +113,18 @@
         <el-form-item label="更新内容">
           <el-input v-model="uploadForm.updateContent" type="textarea" :rows="4" placeholder="请输入更新内容" />
         </el-form-item>
-        <el-form-item label="APK文件">
+        <el-form-item label="安装包文件">
           <el-upload
             ref="uploadRef"
             :auto-upload="false"
             :on-change="handleFileSelect"
             :file-list="fileList"
-            accept=".apk"
+            :accept="getClientAccept(uploadForm.client)"
             :limit="1"
           >
             <el-button type="primary">选择文件</el-button>
           </el-upload>
-          <div class="form-tip">iOS版本可不上传文件</div>
+          <div class="form-tip">{{ getFileTip(uploadForm.client) }}</div>
         </el-form-item>
       </el-form>
       
@@ -169,12 +169,12 @@
             :auto-upload="false"
             :on-change="handleEditFileSelect"
             :file-list="editFileList"
-            accept=".apk"
+            :accept="getClientAccept(editForm.client)"
             :limit="1"
           >
             <el-button type="primary">选择新文件</el-button>
           </el-upload>
-          <div class="form-tip">不选择文件则保持原文件不变</div>
+          <div class="form-tip">{{ getEditFileTip(editForm.client) }}</div>
         </el-form-item>
       </el-form>
       
@@ -301,11 +301,23 @@ export default {
     },
     
     handleEditFileSelect(file) {
+      if (!this.isAllowedClientFile(this.editForm.client, file.raw?.name || file.name)) {
+        ElMessage.error(`${this.getClientLabel(this.editForm.client)}仅支持 ${this.getClientAccept(this.editForm.client)} 文件`)
+        this.selectedEditFile = null
+        this.editFileList = []
+        return
+      }
       this.selectedEditFile = file.raw
       this.editFileList = [file]
     },
     
     handleFileSelect(file) {
+      if (!this.isAllowedClientFile(this.uploadForm.client, file.raw?.name || file.name)) {
+        ElMessage.error(`${this.getClientLabel(this.uploadForm.client)}仅支持 ${this.getClientAccept(this.uploadForm.client)} 文件`)
+        this.selectedFile = null
+        this.fileList = []
+        return
+      }
       this.selectedFile = file.raw
       this.fileList = [file]
     },
@@ -478,6 +490,34 @@ export default {
         HarmonyOS: '鸿蒙OS'
       }
       return clientLabelMap[client] || client
+    },
+
+    getClientAccept(client) {
+      const acceptMap = {
+        Android: '.apk',
+        iOS: '.ipa',
+        OTAFirmware: '.bin',
+        HarmonyOS: '.hap,.app'
+      }
+      return acceptMap[client] || '.apk,.ipa,.bin,.hap,.app'
+    },
+
+    isAllowedClientFile(client, filename = '') {
+      const ext = filename.includes('.') ? `.${filename.split('.').pop().toLowerCase()}` : ''
+      const allowed = this.getClientAccept(client).split(',')
+      return allowed.includes(ext)
+    },
+
+    getFileTip(client) {
+      const clientLabel = this.getClientLabel(client)
+      if (client === 'iOS') {
+        return `${clientLabel}支持上传 ${this.getClientAccept(client)} 文件，也可不上传文件`
+      }
+      return `${clientLabel}仅支持上传 ${this.getClientAccept(client)} 文件`
+    },
+
+    getEditFileTip(client) {
+      return `支持上传 ${this.getClientAccept(client)} 文件，不选择则保持原文件不变`
     }
   }
 }

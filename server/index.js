@@ -7,6 +7,12 @@ const fs = require('fs')
 const app = express()
 const PORT = process.env.PORT || 3001
 const SUPPORTED_CLIENTS = ['Android', 'iOS', 'OTAFirmware', 'HarmonyOS']
+const CLIENT_FILE_EXTENSIONS = {
+  Android: ['.apk'],
+  iOS: ['.ipa'],
+  OTAFirmware: ['.bin'],
+  HarmonyOS: ['.hap', '.app']
+}
 
 // 增加请求体大小限制
 app.use(express.json({ limit: '200mb' }))
@@ -133,6 +139,30 @@ const upload = multer({
   }
 })
 
+function getFileExtension(filename = '') {
+  return path.extname(filename).toLowerCase()
+}
+
+function getAllowedExtensionsByClient(client) {
+  return CLIENT_FILE_EXTENSIONS[client] || []
+}
+
+function isAllowedClientFile(client, filename = '') {
+  const ext = getFileExtension(filename)
+  const allowedExtensions = getAllowedExtensionsByClient(client)
+  return allowedExtensions.includes(ext)
+}
+
+function getDownloadContentType(filename = '') {
+  const ext = getFileExtension(filename)
+  if (ext === '.apk') return 'application/vnd.android.package-archive'
+  if (ext === '.bin') return 'application/octet-stream'
+  if (ext === '.hap') return 'application/octet-stream'
+  if (ext === '.app') return 'application/octet-stream'
+  if (ext === '.ipa') return 'application/octet-stream'
+  return 'application/octet-stream'
+}
+
 // 单独的LOGO上传配置
 const logoUpload = multer({ 
   storage,
@@ -173,7 +203,7 @@ app.get('/download/:id', (req, res) => {
     const range = req.headers.range
     
     // 设置基本响应头
-    res.setHeader('Content-Type', 'application/vnd.android.package-archive')
+    res.setHeader('Content-Type', getDownloadContentType(version.originalName || version.filename))
     res.setHeader('Content-Disposition', `attachment; filename="${version.originalName}"`)
     res.setHeader('Accept-Ranges', 'bytes')
     res.setHeader('Content-Length', fileSize)
@@ -252,7 +282,7 @@ app.get('/direct-download/:filename', (req, res) => {
     const stat = fs.statSync(filePath)
     
     // 设置响应头
-    res.setHeader('Content-Type', 'application/vnd.android.package-archive')
+    res.setHeader('Content-Type', getDownloadContentType(filename))
     res.setHeader('Content-Length', stat.size)
     res.setHeader('Accept-Ranges', 'bytes')
     res.setHeader('Cache-Control', 'public, max-age=31536000')
@@ -458,6 +488,16 @@ app.post('/api/admin/upload', requireAuth, upload.single('apk'), (req, res) => {
   const { version, versionCode, client, forceUpdate, updateContent } = req.body
   if (!version || !versionCode || !client) {
     return res.status(400).json({ success: false, message: '请填写完整信息' })
+  }
+  if (!SUPPORTED_CLIENTS.includes(client)) {
+    return res.status(400).json({ success: false, message: '客户端参数错误' })
+  }
+  if (req.file && !isAllowedClientFile(client, req.file.originalname)) {
+    const allowedExtensions = getAllowedExtensionsByClient(client)
+    return res.status(400).json({
+      success: false,
+      message: `${client} 仅支持上传 ${allowedExtensions.join('、')} 文件`
+    })
   }
   
   const data = readData()
