@@ -43,7 +43,7 @@
                   <span class="param-location">query</span>
                 </div>
                 <div class="param-description">
-                  客户端类型，支持的值：<code>Android</code>、<code>iOS</code>
+                  客户端类型，支持的值：<code>Android</code>、<code>iOS</code>、<code>OTAFirmware</code>、<code>HarmonyOS</code>
                 </div>
               </div>
             </div>
@@ -179,6 +179,8 @@
                   <select v-model="selectedClient" class="form-control">
                     <option value="Android">Android</option>
                     <option value="iOS">iOS</option>
+                    <option value="OTAFirmware">OTA固件</option>
+                    <option value="HarmonyOS">鸿蒙OS</option>
                   </select>
                 </div>
                 
@@ -303,7 +305,7 @@ export default {
   "client": {
     "type": "string",
     "description": "客户端类型",
-    "enum": ["Android", "iOS"]
+    "enum": ["Android", "iOS", "OTAFirmware", "HarmonyOS"]
   },
   "forceUpdate": {
     "type": "boolean",

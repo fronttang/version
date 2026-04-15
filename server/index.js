@@ -6,6 +6,7 @@ const fs = require('fs')
 
 const app = express()
 const PORT = process.env.PORT || 3001
+const SUPPORTED_CLIENTS = ['Android', 'iOS', 'OTAFirmware', 'HarmonyOS']
 
 // 增加请求体大小限制
 app.use(express.json({ limit: '200mb' }))
@@ -547,7 +548,7 @@ app.post('/api/admin/update-version', requireAuth, (req, res) => {
 app.get('/api/app/version-check', (req, res) => {
   const { client } = req.query
   
-  if (!client || !['Android', 'iOS'].includes(client)) {
+  if (!client || !SUPPORTED_CLIENTS.includes(client)) {
     return res.status(400).json({ success: false, message: '客户端参数错误' })
   }
   

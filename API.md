@@ -24,7 +24,7 @@
 
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| client | string | 是 | 客户端类型，可选值：`Android`、`iOS` |
+| client | string | 是 | 客户端类型，可选值：`Android`、`iOS`、`OTAFirmware`、`HarmonyOS` |
 
 #### 请求示例
 
@@ -34,6 +34,12 @@ GET /api/app/version-check?client=Android
 
 # iOS版本检查
 GET /api/app/version-check?client=iOS
+
+# OTA固件版本检查
+GET /api/app/version-check?client=OTAFirmware
+
+# 鸿蒙OS版本检查
+GET /api/app/version-check?client=HarmonyOS
 ```
 
 #### 响应格式
@@ -197,7 +203,7 @@ if (needUpdate(currentVersion, latestVersion)) {
 
 ## 注意事项
 
-1. **客户端参数**: 必须传递正确的客户端类型（`Android` 或 `iOS`），区分大小写
+1. **客户端参数**: 必须传递正确的客户端类型（`Android`、`iOS`、`OTAFirmware`、`HarmonyOS`），区分大小写
 2. **版本比较**: 建议使用 `versionCode` 进行数字比较，而不是字符串比较 `version`
 3. **强制更新**: 当 `forceUpdate` 为 `true` 时，应阻止用户继续使用旧版本
 4. **下载链接**: `downloadUrl` 可能为相对路径，需要拼接完整域名
@@ -209,3 +215,4 @@ if (needUpdate(currentVersion, latestVersion)) {
 - **v1.0.0**: 初始版本，支持基础版本检查
 - **v1.1.0**: 添加强制更新和更新内容字段
 - **v1.2.0**: 支持iOS平台版本检查
+- **v1.3.0**: 新增 `OTAFirmware`、`HarmonyOS` 客户端类型（管理端显示分别为“OTA固件”、“鸿蒙OS”）

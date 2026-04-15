@@ -6,7 +6,11 @@
     </div>
     
     <el-table :data="paginatedVersions" style="width: 100%">
-      <el-table-column prop="client" label="客户端" width="80" />
+      <el-table-column label="客户端" width="100">
+        <template #default="scope">
+          <span class="client-text">{{ getClientLabel(scope.row.client) }}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="version" label="版本号" width="100" />
       <el-table-column prop="versionCode" label="版本代码" width="100" />
       <el-table-column prop="originalName" label="文件名">
@@ -93,6 +97,8 @@
           <el-select v-model="uploadForm.client" placeholder="请选择客户端">
             <el-option label="Android" value="Android" />
             <el-option label="iOS" value="iOS" />
+            <el-option label="OTA固件" value="OTAFirmware" />
+            <el-option label="鸿蒙OS" value="HarmonyOS" />
           </el-select>
         </el-form-item>
         <el-form-item label="版本号" required>
@@ -141,6 +147,8 @@
           <el-select v-model="editForm.client">
             <el-option label="Android" value="Android" />
             <el-option label="iOS" value="iOS" />
+            <el-option label="OTA固件" value="OTAFirmware" />
+            <el-option label="鸿蒙OS" value="HarmonyOS" />
           </el-select>
         </el-form-item>
         <el-form-item label="版本号">
@@ -460,6 +468,16 @@ export default {
     
     formatTime(timeString) {
       return new Date(timeString).toLocaleString('zh-CN')
+    },
+
+    getClientLabel(client) {
+      const clientLabelMap = {
+        Android: 'Android',
+        iOS: 'iOS',
+        OTAFirmware: 'OTA固件',
+        HarmonyOS: '鸿蒙OS'
+      }
+      return clientLabelMap[client] || client
     }
   }
 }
@@ -513,6 +531,10 @@ export default {
   color: #909399;
   margin-top: 8px;
   font-style: italic;
+}
+
+.client-text {
+  white-space: nowrap;
 }
 
 /* 弹窗样式优化 */
